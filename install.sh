@@ -16,3 +16,12 @@ mkdir /mnt/home
 mount /dev/volgroup0/lv_home /mnt/home
 mkdir /mnt/etc
 genfstab -U -p /mnt >> /mnt/etc/fstab
+
+pacstrap -i /mnt base
+arch-root /mnt
+pacman -S linux linux-headers linux-lts linux-lts-headers
+pacman -S vim base-devel openssh
+systemctl enable sshd
+pacman -S networkmanager wpa_supplicant wireless_tools netctl dialog
+systemctl enable networkmanager
+pacman -S lvm2
