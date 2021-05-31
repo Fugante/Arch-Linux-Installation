@@ -1,15 +1,15 @@
-g # clear in memory partition and create a gpt scheme
-n # new partition
-1 # partition 1
- # deault - start at begginig of disk
-+500M # 500MB partition
-t # set partition type
-1 # EFI partition
-n # new partition
-2 # partition 2
- # default - beggin at end of last partition
- # default - use remaining disk space
-t # set partition type
-2 # partition 2
-30 # LVM partition
-w # save changes
+g
+n
+1
+
++500M
+t
+1
+n
+2
+
+
+t
+2
+30
+w
