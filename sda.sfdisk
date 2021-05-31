@@ -1,7 +1,15 @@
-label: gpt
-device: /dev/sda
-unit: sectors
-sector-size: 512
-
-/dev/sda1 : start=-, size=500MiB, type=C12A7328-F81F-11D2-BA4B-00A0C93EC93B, uuid=5103593E-13EA-F747-8574-85F07C308461
-/dev/sda2 : start=-, size=-, type=E6D6D379-F507-44C2-A23C-238F2A3DF928, uuid=521FC948-44D2-E544-BFCA-AE645A80A21D
+g # clear in memory partition and create a gpt scheme
+n # new partition
+1 # partition 1
+ # deault - start at begginig of disk
++500M # 500MB partition
+t # set partition type
+1 # EFI partition
+n # new partition
+2 # partition 2
+ # default - beggin at end of last partition
+ # default - use remaining disk space
+t # set partition type
+2 # partition 2
+30 # LVM partition
+w # save changes
