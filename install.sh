@@ -1,1 +1,3 @@
-sfdisk /dev/sda < sda.sfdisk
+#! /usr/bin/bash
+
+fdisk /dev/sda < sda.fdisk
