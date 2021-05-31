@@ -1,3 +1,3 @@
 #! /usr/bin/bash
 
-fdisk /dev/sda < sda.fdisk
+fdisk /dev/sda < sed -e "s/#.*//g" sda.fdisk
