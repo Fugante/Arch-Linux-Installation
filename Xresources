@@ -1,0 +1,9 @@
+URxvt.font: xft:UbuntuMono-R.tt:size=14
+URxvt.letterSpace: 0
+URxvt.foreground: #00FFFF
+URxvt.background: #000000
+URxvt.transparent: true
+URxvt.shading: 40
+URxvt.scrollBar: false
+URxvt.cursorBlink: true
+

@@ -1,0 +1,142 @@
+# CHECK INTERNET CONECTIVITY
+# List net devices and send to google 2 packets of information
+ip link
+ping -c 2 www.google.com
+
+# DISK PARTITION
+# List disk partitions
+fdisk -l
+# Enter disk partition utility
+fdisk /dev/sda (path/to/device)
+# Create a GPT scheme
+g
+# Create EFI partition
+n    # New partition
++500M    # Allocate 500 MB of space
+t    # Set partition type
+1    # Select partition 1
+1    # Select EFI Partition
+# Create LVM partition
+n
+t
+2    # Select partition 2
+30    # Select Linux LVM partition
+# Save changes
+w
+# Format EFI partition to FAT32
+mkfs.fat -F32 /dev/sda1
+# Create an LVM Volume
+pvcreate --dataalignment 1m /dev/sda2
+# Create a volume group named volgroup0 and asign the LVM partition to it
+vgcreate volgroup0 /dev/sda2
+# Create logical volume name lv_root
+lvcreate -L 30GB volgroup0 -n lv_root
+# Create logical volume name lv_home with the remaining space
+lvcreate -l 100%FREE volgroup0 -n lv_home
+# Activate volumes
+modprobe dm_mod
+# Scan for volume groups
+vgscan
+# Activate volume groups
+vgchange -ay
+# Format lv_root to ext4
+mkfs.ext4 /dev/volgroup0/lv_root
+# Mount lv_root at /mnt
+mount /dev/volgroup0/lv_root /mnt
+# Format lv_home to ext4
+mkfs.ext4 /dev/volgroup0/lv_home
+# Mount lv_home in lv_root
+mkdir /mnt/home    # Create home dir
+mount /dev/volgroup0/lv_home /mnt/home
+# Create genfstab file
+mkdir /mnt/etc    # Create etc dir
+genfstab -U -p /mnt >> /mnt/etc/fstab
+
+# ARCH LINUX INSTALLATION
+# Install base packages
+pacstrap -i /mnt base
+# Change current root directory
+arch-chroot /mnt
+# Install linux kernels
+pacman -S linux linux-headers linux-lts linux-lts-headers
+# Install additional programs
+pacman -S vim    # Install vim text editor
+pacman -S base-devel    # Install developer utilities
+pacman -S openssh    # Install ssh protocol comunications manager
+systemctl enable sshd    # Enable ssh daemon
+pacman -S networkmanager wpa_supplicant wireless_tools netctl    # Install network programs
+pacman -S dialog    # Install program for connecting to WiFi bia command line
+systemctl enable NetworkManager    # Enable network manager daemon
+pacman -S lvm2    # Install LVM support
+
+# In file /etc/mkinitcpio.conf change the line "HOOKS=(base udev ... block filesystems ...)"
+# and "lvm2" between "block" and "filesystems". The result should look something like
+# "HOOKS=(base udev ... block lvm2 filesystems ...)"
+# Make those changes take effect
+mkinitcpio -p linux
+mkinitcpio -p linux-lts
+
+# Remove the hash symbol (uncomment) the line that corresponds to your locale in the 
+# file /etc/locale.gen
+# Make those changes take effect
+local-gen
+# Set root password
+passwd
+# Create username and groups
+useradd -m -g users -G wheel <username>
+# Create a password for that username
+passwd <username>
+# install sudo package
+paman -S sudo
+# Change sudo configuration and uncomment the line "%wheel ALL=(ALL) ALL"
+EDITOR=vim visudo    # Use vim for that
+
+# GRUB INSTALLATION (for UEFI systems)
+# Install grub and auxiliary packages
+pacman -S grub efibootmgr dosfstools os-prober mtools
+# Create EFI dir
+mkdir /boot/EFI
+# Mount the EFI partition
+mount /dev/sda1 /boot/EFI
+# Install grub
+grub-install --target=x86_64-efi --bootloader-id=grub_uefi --recheck
+# Check if dir /boot/grub/locale exists
+ls -l /boot/grub
+# If not, create it
+mkdir /boot/grub/locale
+# Copy grub messages file to grub dir
+cp /usr/share/locale/en\@quot/LC_MESSAGES/grub.mo /boot/grub/locale/en.mo
+# Generate grub config file
+grub-mkconfig -o /boot/grub/grub.cfg
+
+# REBOOT SYSTEM
+# Exit root
+exit
+# Umount all devices
+umount -a
+# Reboot system
+reboot
+
+# ADDITIONAL CONFIGURATIONS
+# List timezones
+timedatectl list-timezones
+# Set timezone
+timedatectl set-timezone <Timezone>
+# Syncronize clock when system reboots
+systemctl enable systemd-timesyncd
+# Set system hostname
+hostnamectl set-hostname <Hostname>
+# Edit /etc/hosts file
+echo "127.0.0.1" localhost >> /etc/hosts
+echo "127.0.1.1" <Hostname> >> /etc/hosts
+# Install display server
+pacman -S xorg-server
+# Install video driver
+pacman -S mesa   # only for Intel and AMD GPUs
+pacman -S nvidia nvidia-lts    # Only for Nvidia GPUs
+pacman -S virtualbox-guest-utils xf86-video-vmware    # Only for virtualbox
+systemctl enable vboxservice    # Only for virtualbox
+# Install python3 and pip
+pacman -S python python-pip
+# Install git
+pacman -S git

@@ -1,0 +1,3 @@
+pacman -S xterm
+pacman -S qtile
+cp /usr/share/doc/qtile/default_config.py ~/.config/qtile/config.py
