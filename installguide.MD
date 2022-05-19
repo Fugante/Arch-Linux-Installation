@@ -8,30 +8,73 @@ must be downloaded. First of all, it is necessary to check if the install medium
 correctly detects the system's network hardware.
 
 ### List Networking Devices
-To print a list of all of your networking devides run the command `ip link`. If, among 
-the listed devices, you see an item similiar to the following, 
-`enp020f0u2u3: <BROADCAST, MULTICAST, UP, LOWER_UP> ...`, it means you have a functioning 
+To print a list of all of your networking devides run the command 
+
+```
+ip link
+```
+
+If, among the listed devices, you see an item similiar to this:
+
+```
+enp020f0u2u3: <BROADCAST, MULTICAST, UP, LOWER_UP> ...
+```
+
+it means you have a functioning 
 wired connection and you don't need to take any further action. If you see something like 
-`wlan0: <NO-CARRIER. BROADCAST, MULTICAST, UP> ... state DOWN mode DORMANT ...` it means 
-that you have a wireless device but it is not enabled. In order to see if your devices 
-are connected to your local network run the command `ip a` to show a very similar list of 
-your devices and their associated IP addresses. If you don't see an IP address then you 
-must troubleshoot that before continuing.
+
+```
+wlan0: <NO-CARRIER. BROADCAST, MULTICAST, UP> ... state DOWN mode DORMANT ...
+```
+
+it means that you have a wireless device but it is not enabled. In order to see if your devices are connected to your local network run the command 
+
+```
+ip a
+```
+
+to show a very similar list of your devices and their associated IP addresses. If you 
+don't see an IP address then you must troubleshoot that before continuing.
 
 #### Enabling Wireless Connection
-To enable your wireless device run the command `iwctl` to access a shell for configuring 
-the device. Inside the configuration shell run the command `device list` to see a list of 
-the detected wireless devices. If you don't see a any device listed or if your listed 
-devices are not working properly you should solve that problem first before continuing 
-with the installation.
+To enable your wireless device enter the [iwctl](https://wiki.archlinux.org/title/Iwd) 
+shell:
 
-Run the command `station wlan0 scan` (substitute `wlan0` for the name of your devide) to 
-scan for available networks, in order to actually print the networks run the command 
-`station <yourDeviceName> get-networks`. Finally, run the command 
-`station <yourDeviceName> connect "<yourNetwork>"` to connect to your wireless network. 
+```
+iwctl
+```
+
+To access a shell for configuring the device. Inside the configuration shell run the 
+following command to see a list of the detected wireless devices.
+
+```
+device list
+```
+
+If you don't see a any device listed or if your listed devices are not working properly 
+you should solve that problem first before continuing with the installation.
+
+Run the next command to scan for available networks.
+
+```
+station <deviceName> scan
+```
+
+In order to actually print the networks run the command 
+
+```
+station <yourDeviceName> get-networks
+```
+
+Finally, to  connect to your wireless network run the command: 
+
+```
+station <yourDeviceName> connect "<yourNetwork>"
+```
+
 You will be prompted for the network's password, after you enter it your device should be 
 connected (you may want to wait for a couple of seconds to make sure your device had 
-enough time to establish the connection). Hit Ctrl + D to exit the shell.
+enough time to establish the connection). Hit `Ctrl + D` to exit the shell.
 
 ### Testing your Internet Connection
 To verify that your Internet connection is functioning properly run the command 
@@ -51,21 +94,21 @@ otherwise continue to next section in order to use the whole drive for Linux.
 ### Partitioning a Dedicated Disk
 Run the command `fdisk /dev/<yourDisk>` to modify the disk's partition table in 
 interactive mode. **Do not** enter the name of a logical partition, only use the name of 
-the physical volume (eg.: use /dev/sda, not /dev/sda1). The instructions to format your 
+the physical volume (e.g.: use /dev/sda, not /dev/sda1). The instructions to format your 
 disk are different depending on wheter you have Windows in the same hardrive or not.
 
 If you do not have Windows you have to create a partition scheme and create 2 partitions, 
 one for the OS and the other for the boot process. To create a partition scheme hit the 
-the letter **g** to create a [GPT Scheme](). Next, for the boot partition, hit the letter 
-**n** to create a new partition. Just after that you will be asked to select the new 
-partition's starting sector, just hit **Enter** to accept the default value. Then, 
-type `+500M` to allocate 500 MiB of memory (no more is needed). After that, type **t** to 
+the letter `g` to create a [GPT Scheme](). Next, for the boot partition, hit the letter 
+`n` to create a new partition. Just after that you will be asked to select the new 
+partition's starting sector, just hit `Enter` to accept the default value. Then, 
+type `+500M` to allocate 500 MiB of memory (no more is needed). After that, type `t` to 
 select the type partition type; select the [EFI Partition](). Now you must create a 
-partition for storing the operating system. Hit **n** again to create a new partition. 
+partition for storing the operating system. Hit `n` again to create a new partition. 
 Again, select the default value for the starting sector. When asked to select the ending 
-sector just hit **Enter** to use all the avaiable space (if that is what you want). Type 
-**t** again to select the partition type and type **2** to select the 2nd partition. This 
-time select Linux LVM. Finally, type **w** to apply the changes and exit the program.
+sector just hit `Enter` to use all the avaiable space (if that is what you want). Type 
+`t` again to select the partition type and type `2` to select the 2nd partition. This 
+time select Linux LVM. Finally, type `w` to apply the changes and exit the program.
 
 ### Partitioning a Disk with Windows
 If you want to install Arch Linux in a system that already has Windows installed, and you 
@@ -78,46 +121,109 @@ etc.) because some Linux programs such as `fdisk` or `cfdisk` may not be able to
 recognize the free space.
 
 Now, you just have to reformat the partition that you allocated for Linux. Run the 
-command `fdisk /dev/<yourDisk>` to format your physical disk. Type **t** to change the 
+command `fdisk /dev/<yourDisk>` to format your physical disk. Type `t` to change the 
 type of one of the existing logical partitions. Select the number of the partition you 
-want to modify. 
-**Be extra careful here, you may lose all your data and your Windows installation if you format the wrong partition**.
+want to modify. **Be extra careful here, you may lose all your data and your Windows installation if you format the wrong partition**.
 
 ### Formating the Partitions
 
 If you have Windows installed, then you already have a UEFI partition and you just have 
-to format the partition where Linux will live. Run the command 
-`pvcreate --dataalignment 1m /dev/<yourDiskAndPartitionNumber>` to create a new LVM 
-physical volume. Next, create a new volume group and assign it to the LVM partition with 
-the command `vgcreate volgroup0 /dev/<yourDiskAndPartitionNumber>`. In this case 
-volgroup0 is the name of the volume. Then, you must create a logical volume, which acts 
-similar to a disk partition, using the command 
-`lvcreate -L 30GB <volumeName> -n lv_root`. The previous command creates a new logical 
-volume in the specified volumen (eg.: volumeName = volgroup0), allocates 30GB of space 
-for it and names it lv_root. Repeat the previous step to create a new volume that will 
-hold all of the data not critical for the OS. Run 
-`lvcreate -l 100%FREE <volumeName> -n lv_home`. In this case the option `-l 100%FREE` 
-tells the program to use all remaining available space.
+to format the partition where Linux will live. First, to create a new LVM physical 
+volume run the command 
+
+```
+pvcreate --dataalignment 1m /dev/<yourDiskAndPartitionNumber>
+```
+
+Next, create a new volume group and assign it to the LVM partition with 
+the command 
+
+```
+vgcreate volgroup0 /dev/<yourDiskAndPartitionNumber>
+```
+
+In this case volgroup0 is the name of the volume. Then, you must create a logical volume, which acts similar to a disk partition, using the command 
+
+```
+lvcreate -L 30GB <volumeName> -n lv_root
+```
+
+The previous command creates a new logical volume in the specified volumen 
+(e.g.: volumeName = volgroup0), allocates 30GB of space for it and names it lv_root. 
+Repeat the previous step to create a new volume that will hold all of the data not 
+critical for the OS. Run 
+
+```
+lvcreate -l 100%FREE <volumeName> -n lv_home
+```
+
+In this case the option `-l 100%FREE` tells the program to use all remaining available 
+space.
 
 Once the logical volumes have been created you have to run a series of commands to verify 
-that they were created properly. Run `modprobe dm_mod` to activate the volumes. Then, run 
-`vgscan` to scan for volume groups, you should see the the of the volume group that you 
-created in the previous steps. Finally, activate the volume groups by running the command 
-`vgchange -ay`.
+that they were created properly. to activate the volumes run: 
+
+```
+modprobe dm_mod
+```
+
+Then, to scan for volume groups run:
+
+```
+vgscan
+```
+
+You should see listed the name of the volume group that you created in the previous 
+steps. Finally, activate the volume groups by running the command 
+
+```
+vgchange -ay
+```
 
 Now that the LVM volumes are configured and running, you must create a filesytem format 
-in order to be able to use them. To create a Linux filesystem 
-format run `mkfs.ext4 /dev/<volumeGroup>/<logicalVolume>` (/dev/volgroup0/lv_root if you 
-used the names in the guide). Do the same for the other logical volume. The final step is 
-to mount the partitions and create a file to tell the OS the structure of the disk. Mount 
-the lv_root volume in the /mnt directory by running 
-`mount /dev/<volumeGroup>/<rootLogicalVolume> /mnt`. Create a new directory in the 
-mounted volume with the command `mkdir /mnt/home`. Use that new directory to mount the 
-other volume, `mount /dev/<volumeGroup>/<homeLogicalVolume> /mnt/home`. If you have 
-Windows installed, you also need to mount the EFI partition, run `mkdir /mnt/efi` 
-followed by `mount /dev/<windowsEFIPartition> /mnt/efi`. Finally create a 
-[genfstab](https://wiki.archlinux.org/title/Fstab) file by running the commands 
-`mkdir /mnt/etc` and `genfstab -U -p >> /mnt/etc/fstab`. You can verify that all of the partitions are listed in the file by running `cat /mnt/etc/fstab`.
+in order to be able to use them. To create a Linux filesystem format run 
+(`/dev/volgroup0/lv_root` if you used the names in this guide):
+
+```
+mkfs.ext4 /dev/<volumeGroup>/<logicalVolume>
+```
+
+Do the same for the other logical volume. The final step is to mount the partitions and 
+create a file to tell the OS the structure of the disk. Mount the lv_root volume in the 
+/mnt directory by running 
+
+```
+mount /dev/<volumeGroup>/<rootLogicalVolume> /mnt
+```
+
+Create a new directory in the mounted volume with the command 
+
+```
+mkdir /mnt/home
+```
+
+Use that new directory to mount the other volume: 
+
+```
+mount /dev/<volumeGroup>/<homeLogicalVolume> /mnt/home
+```
+
+If you have Windows installed, you also need to mount the EFI partition, run: 
+
+```
+mkdir /mnt/efi
+mount /dev/<windowsEFIPartition> /mnt/efi
+```
+
+Finally create a [genfstab](https://wiki.archlinux.org/title/Fstab) file by running the commands: 
+
+```
+mkdir /mnt/etc
+genfstab -U -p >> /mnt/etc/fstab
+```
+
+You can verify that all 
+of the partitions are listed in the file by running `cat /mnt/etc/fstab`.
 
 ## Installing the Kernel
 Finally now you are able to actually install the operating system. The actual 
@@ -238,7 +344,7 @@ To connect to a network run
 ```
 nmcli device wifi connect <SSID_or_BSSID> password <password>
 ```
-With that, your connection should be stablished. You can always use `ip -a` to show a 
+With that, your connection should be stablished. You can always use `ip a` to show a 
 list of your networking hardware and their associated IP address. Also, use 
 `ping <address>` to test your internet connection.
 
