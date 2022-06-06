@@ -33,11 +33,11 @@ from libqtile import bar, layout
 from libqtile.config import Click, Drag, Match, Screen
 from libqtile.lazy import lazy
 
+
 from settings.widgets import WidgetListAssembler
 from settings.layouts import init_layouts
-from settings.hooks import autostart
-from settings.groups import GroupListAssembler
-from settings.keys import KeyListAssembler
+from settings.groups import groups
+from settings.keys import keys, mod
 
 
 qtile_path = os.path.join(os.path.expanduser('~'), '.config/qtile')
@@ -50,35 +50,12 @@ color_theme = 'rosepine.json'
 with open(os.path.join(qtile_path, 'settings/themes', color_theme), 'r') as file:
     colors = json.load(file)
 
-# Icons were downloaded from https://www.nerdfonts.com/cheat-sheet
-group_names = [
-    ('', {'layout': 'max'}),    # nf-dev-terminal
-    ('', {'layout': 'max'}),    # nf-fae-python
-    ('', {'layout': 'monadwide'}),    # nf-dev-terminal
-    ('', {'layout': 'max'}),   # nf-fa-slack
-    ('', {'layout': 'monadtall'}),    # nf-fa-whatsapp
-]
-
-
-keys_assembler = KeyListAssembler()
 widgets_assembler = WidgetListAssembler(colors, font)
-groups_assembler = GroupListAssembler(group_names)
 
-keys_assembler.add_group_keys(group_names)
-keys = keys_assembler.get_keys()
-mod = keys_assembler.mod
-groups = groups_assembler.get_groups()
 layouts = init_layouts(colors)
 widget_defaults = widgets_assembler.widget_defaults()
 extension_defaults = widget_defaults.copy()
-screens = [
-    Screen(
-        top=bar.Bar(
-            widgets_assembler.primary_widgets(),
-            30
-        )
-    )
-]
+screens = [Screen(top=bar.Bar(widgets_assembler.primary_widgets(), 30))]
 
 # Drag floating layouts.
 mouse = [

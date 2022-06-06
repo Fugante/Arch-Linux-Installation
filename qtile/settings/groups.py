@@ -1,26 +1,17 @@
+from typing import Dict, List, Tuple
+
 from libqtile.config import Group
-from libqtile.lazy import lazy
 
 
-class GroupListAssembler(object):
-    def __init__(self, group_names):
-        self.group_names = group_names
-        self.groups = [Group(name, **kwargs) for name, kwargs in self.group_names]
+group = Tuple[str, Dict]
 
-    def get_groups(self):
-        return self.groups[:]
-
-# keys = []
-# groups = [Group(name, **kwargs) for name, kwargs in group_names]
-# for i, (name, kwargs) in enumerate(group_names, 1):
-#     # mod1 + number of group = switch to group
-#     keys.append(
-#         Key([mod], str(i), lazy.group[name].toscreen(), desc=f"Switch to group {name}")
-#     )
-#     # mod1 + shift + number of group = switch to & move focused window to group
-#     keys.append(
-#         Key(
-#             [mod, "shift"], str(i), lazy.window.togroup(name),
-#             desc=f"Switch to & move focused window to group {name}"
-#         )
-#     )
+# Icons were downloaded from https://www.nerdfonts.com/cheat-sheet
+groups_data: Tuple[group] = (
+    ('', {'layout': 'max'}),           # nf-dev-terminal
+    ('', {'layout': 'max'}),           # nf-fae-python
+    ('', {'layout': 'monadtall'}),     # nf-dev-chrome
+    ('', {'layout': 'max'}),           # nf-fa-slack
+    ('', {'layout': 'monadtall'}),     # nf-fa-whatsapp
+)
+# List of groups (or workspaces) to be imported by the main config file
+groups: List[Group] = [Group(name, **kwargs) for name, kwargs in groups_data]
