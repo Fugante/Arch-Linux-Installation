@@ -13,5 +13,4 @@ groups_data: Tuple[group] = (
     ('', {'layout': 'max'}),           # nf-fa-slack
     ('', {'layout': 'monadtall'}),     # nf-fa-whatsapp
 )
-# List of groups (or workspaces) to be imported by the main config file
 groups: List[Group] = [Group(name, **kwargs) for name, kwargs in groups_data]

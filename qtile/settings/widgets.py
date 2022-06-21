@@ -26,8 +26,8 @@ class WidgetListAssembler(object):
             foreground=self.colors[fg],
             background=self.colors[bg],
             text='', # Icon: nf-oct-triangle_left
-            fontsize=80,
-            padding=-12
+            fontsize=45, # 80 for large screens
+            padding=-2 # -12 for large screens
         )
 
     def icon(self, fg='text', bg='dark', fontsize=16, text="?"):
@@ -45,7 +45,7 @@ class WidgetListAssembler(object):
             widget.GroupBox(
                 foreground=self.colors['light'],
                 background=self.colors['dark'],
-                fontsize=40,
+                fontsize=26, # 40 for large screens
                 margin_y=3,
                 margin_x=0,
                 padding_y=8,
@@ -83,13 +83,19 @@ class WidgetListAssembler(object):
                 padding=5
             ),
             self.powerline('color3', 'color4'),
+            # Show wireless connection
+            widget.Wlan(
+                foreground=self.colors['text'],
+                background=self.colors['color3'],
+                interface='wlp1s0'
+            ),
             widget.Net(
                 foreground=self.colors['text'],
                 background=self.colors['color3'],
-                interface='enp6s0'
+                interface='wlp1s0' # Use `ip address` to show wireless interface 
             ),
             self.powerline('color2', 'color3'),
-            self.icon(bg="color2", text='', fontsize=40), # Icon: nf-mdi-memory
+            self.icon(bg="color2", text='', fontsize=26), # Icon: nf-mdi-memory. 40 for large screens
             widget.Memory(
                 foreground=self.colors['text'],
                 background=self.colors['color2'],
@@ -100,13 +106,20 @@ class WidgetListAssembler(object):
                 format=' {freq_current}GHz {load_percent}%',
             ),
             self.powerline('color1', 'color2'),
-            self.icon(bg='color1', fontsize=40, text=' '), # Icon: nf-mdi-calendar_clock
-            widget.Clock(
+            # Only for laptops
+            widget.Battery(
                 foreground=self.colors['text'],
                 background=self.colors['color1'],
+                format='{char} {percent:2.0%} {watt:.2f} W'
+            ),
+            self.powerline('color3', 'color1'),
+            self.icon(bg='color3', fontsize=26, text=' '), # Icon: nf-mdi-calendar_clock
+            widget.Clock(
+                foreground=self.colors['text'],
+                background=self.colors['color3'],
                 format='%A, %d %B %Y, %H:%M'
             ),
-            self.powerline('color4', 'color1'),
+            self.powerline('color4', 'color3'),
             widget.Systray(
                 background=self.colors['color4'],
                 icon_size=25,

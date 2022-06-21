@@ -85,20 +85,17 @@ keys_cmds: List[KeyCmd] = [
     ([], 'XF86MonBrightnessUp', lazy.spawn('xbacklight -inc 5')),
     ([], 'XF86MonBrightnessDown', lazy.spawn('xbacklight -dec 5')),
 ]
-# Key chord: a sequence of keys
 key_chords: List[KeyCmd] = [
-    # Other applications
     ([], 'w', lazy.spawn('firefox -new-window https://web.whatsapp.com')),
     ([], 'g', lazy.spawn('firefox -new-window https://mail.google.com/chat/u/1')),
     ([],'s',lazy.spawn('slack')),
     ([], 'c', lazy.spawn('code')),
     ([], 'k', lazy.spawn('firefox -new-window https://read.amazon.com')),
 ]
-# List of key commands to be imported by the main config file
+
 keys = [
     Key(cmd_keys, k, command) for cmd_keys, k, command in keys_cmds
 ]
-# Add to the list key chord commands
 keys.append(
     KeyChord(
         [mod],
@@ -106,7 +103,6 @@ keys.append(
         [Key(cmd_keys, k, command) for cmd_keys, k, command in key_chords]
     )
 )
-# Add key commands for navigating workspaces
 for i, (name, _) in enumerate(groups_data):
     i = str(i + 1)
     keys.append(Key([mod], i, lazy.group[name].toscreen()))
