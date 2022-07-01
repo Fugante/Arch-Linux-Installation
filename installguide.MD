@@ -221,7 +221,7 @@ commands:
 
 ```
 mkdir /mnt/etc
-genfstab -U -p >> /mnt/etc/fstab
+genfstab -U -p /mnt>> /mnt/etc/fstab
 ```
 
 You can verify that all of the partitions are listed in the file by running 
@@ -239,7 +239,7 @@ pacstrap -i /mnt base
 Now you have to change your working directory in order to continue. Run 
 
 ```
-arch-root /mnt
+arch-chroot /mnt
 ```
 
 to enter as the root user in the /mnt directory where the OS will be installed. Then, run 
@@ -348,11 +348,11 @@ pacman -S grub efibootmgr dosfstools os-prober mtools
 
 The [efibootmgr](https://github.com/rhboot/efibootmgr) allows GRUB to run in UEFI 
 systems; [os-prober](https://joeyh.name/code/os-prober/) is a utility that allows Arch 
-Linux detect Windows operating systems. Now create a directory called "efi" in the boot 
+Linux detect Windows operating systems. Now create a directory called "efi" or "EFI" in the boot 
 dir (if you haven't already)
 
 ```
-mkdir /boot/EFI
+mkdir /boot/efi
 ```
 
 Mount the EFI partition into the new directory by running
