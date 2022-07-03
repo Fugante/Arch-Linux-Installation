@@ -12,8 +12,38 @@ done
 
 if [[ $NEW_PART == "y" ]]
 then
+    IS_FILE=1
+    while [[ IS_FILE != 0 ]]
+    do
+        echo "Enter a script for partitioning the disk (e.g. VirtualBox.fdisk):"
+        read SCRIPT
+
+        [[ -f $SCRIPT ]]
+        IS_FILE=$?
+
+        if [[ IS_FILE != 0 ]]
+        then
+            echo "Could not find script"
+        fi
+    done
+
+    IS_FILE=1
+    while [[ IS_FILE != 0]]
+    do
+        echo "Enter the disk you wish to partition (e.g. /dev/sda):"
+        read DISK
+
+        [[ -f DISK ]]
+        IS_FILE=$?
+
+        if [[ IS_FILE != 0 ]]
+        then
+            echo "Could not find disk"
+        fi
+    done
+
     # Make a partition table using an fdisk script
-    sfdisk /dev/nvme0n1 < nvme0n1.fdisk
+    sfdisk $DISK < $SCRIPT
 
     # Create a FAT32 filesystem for the EFI partition
     mkfs.fat -F32 /dev/nvme0n1p1
