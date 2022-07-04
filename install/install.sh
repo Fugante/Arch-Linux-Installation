@@ -28,7 +28,7 @@ then
     disk=$(select_option "$prompt" disk_exists)
 
     # Make a partition table using an fdisk script
-    sed "s|<DISK>|$DISK|g" $script | sfdisk $disk
+    sed "s|<DISK>|$DISK|g" $script | sfdisk --force $disk
     sfdisk $disk < $script
 
     if [[ $system != "w" ]]
