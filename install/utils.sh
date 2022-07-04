@@ -1,21 +1,36 @@
-select_option()
+is_valid_option()
 {
-    # $1: string containing the possible choices
-    # $2: Text to show until a valid option is chosen
+    # Use a regex expresion to validate if string 1 is within string 2
 
-    OPTION=""
-    while [[ ! *"$OPTION"* =~ [$1] ]]
-    do
-        echo $2
-        read OPTION
-    done
-    echo $OPTION
+    [[ $1 =~ [$2] ]]
 }
 
-select_option1()
+file_exists()
 {
-    option
-    while $
+    # Check if filename $1 exists
+
+    [[ -f $1 ]]
+}
+
+disk_exists()
+{
+    # Check if disk $1 exists
+
+    lsblk $1 >&2
+}
+
+select_option()
+{
+    # $1: Text to prompt to the user
+    # $2: Function to validate input
+    # $3-$n: Paramenters passed to the validation function
+
+    while :
     do
-        echo $
+        echo "$1" >&2
+        read option
+
+        "$2" $option "${@:3}" && break
+    done
+    echo $option
 }
