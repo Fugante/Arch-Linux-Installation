@@ -1,6 +1,17 @@
 #!/usr/bin/bash
 
 
+# Select the type of installation
+SYSTEM=""
+while [[ ! *"$SYSTEM"* =~ [vlw] ]]
+do
+    echo "How do you want to install Linux?"
+    echo "Linux alongside Windows: w"
+    echo "Linux: l"
+    echo "VirtualBox: v"
+    read SYSTEM
+done
+
 # Ask if user wants to create a new partition
 NEW_PART=""
 while [[ ! *"$NEW_PART"* =~ [yn] ]]
@@ -9,11 +20,10 @@ do
     read NEW_PART
 done
 
-
-if [[ $NEW_PART == "y" ]]
+if [[ $NEW_PART = "y" ]]
 then
     IS_FILE=1
-    while [[ IS_FILE != 0 ]]
+    while [[ IS_FILE -ne 0 ]]
     do
         echo "Enter a script for partitioning the disk (e.g. VirtualBox.fdisk):"
         read SCRIPT
@@ -21,14 +31,14 @@ then
         [[ -f $SCRIPT ]]
         IS_FILE=$?
 
-        if [[ IS_FILE != 0 ]]
+        if [[ IS_FILE -ne 0 ]]
         then
             echo "Could not find script"
         fi
     done
 
     IS_FILE=1
-    while [[ IS_FILE != 0]]
+    while [[ IS_FILE -ne 0 ]]
     do
         echo "Enter the disk you wish to partition (e.g. /dev/sda):"
         read DISK
@@ -36,21 +46,26 @@ then
         [[ -f DISK ]]
         IS_FILE=$?
 
-        if [[ IS_FILE != 0 ]]
-        then
-            echo "Could not find disk"
-        fi
+        lsblk $DISK
+        IS_FILE=$?
     done
 
     # Make a partition table using an fdisk script
+    sed "s|<DISK>|$DISK|g" $SCRIPT | sfdisk $DISK
     sfdisk $DISK < $SCRIPT
 
-    # Create a FAT32 filesystem for the EFI partition
-    mkfs.fat -F32 /dev/nvme0n1p1
+    if [[ $SYSTEM != "w" ]]
+    then
+        EFI_PARTITION="${DISK}1"
+        # Create a FAT32 filesystem for the EFI partition
+        mkfs.fat -F32 $EFI_PARTITION
+    else
+        
+    fi
 
     # Create a LVM scheme for the other partition
-    pvcreate --dataalignment 1m /dev/nvme0n1p2
-    vgcreate volgroup0 /dev/nvme0n1p2
+    pvcreate --dataalignment 1m "${DISK}2"
+    vgcreate volgroup0 "${DISK}2"
     # Allocate 30 GiB for the root directory
     lvcreate -L 30GB volgroup0 -n lv_root
     # Allocate the rest for the home directory

@@ -1,9 +1,8 @@
 label: gpt
-device: /dev/sda
+device: <DISK>
 unit: sectors
 first-lba: 2048
-last-lba 62914526
 sector-size: 512
 
-/dev/sda1 : start= 2048,        size= 1024000,    type=C12A7328-F81F-11D2-BA4B-00A0C93EC93B
-/dev/sda2 : start= 1026048,     size= 61886464,   type=E6D6D379-F507-44C2-A23C-238F2A3DF928
+<DISK>1 : start= 2048,        size= 1024000,    type=C12A7328-F81F-11D2-BA4B-00A0C93EC93B
+<DISK>2 : start= 1026048,     size= 61886464,   type=E6D6D379-F507-44C2-A23C-238F2A3DF928
