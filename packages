@@ -1,5 +1,10 @@
-mesa
 xorg
 xorg-xinit
 nitrogen
 firefox
+qtile
+nautilus
+zathura
+ttf-nerd-fonts-symbols
+python-pip
+pip psutil
