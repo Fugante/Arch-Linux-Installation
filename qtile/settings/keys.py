@@ -10,6 +10,8 @@ KeyCmd = Tuple[List, str, Callable]
 
 mod = 'mod4'
 keys_cmds: List[KeyCmd] = [
+    # ------------- Monitor keys ------------
+    ([mod], "period", lazy.next_screen()),
     # ------------- Window Keys -------------
     # Switch window focus in current stack pane
     ([mod], 'h', lazy.layout.left()),
@@ -84,6 +86,7 @@ keys_cmds: List[KeyCmd] = [
     # Screen
     ([], 'XF86MonBrightnessUp', lazy.spawn('xbacklight -inc 5')),
     ([], 'XF86MonBrightnessDown', lazy.spawn('xbacklight -dec 5')),
+    ([mod], 'F8', lazy.spawn('arandr')),
 ]
 key_chords: List[KeyCmd] = [
     ([], 'w', lazy.spawn('firefox -new-window https://web.whatsapp.com')),

@@ -2,5 +2,5 @@
 
 
 nitrogen --restore &
-redshift &
-ibus-daemon -drxR
+#redshift &
+#ibus-daemon -drxR

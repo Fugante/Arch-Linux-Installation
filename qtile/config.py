@@ -34,7 +34,7 @@ from libqtile.config import Click, Drag, Match, Screen
 from libqtile.lazy import lazy
 
 
-from settings.widgets import WidgetListAssembler
+from settings.widgets import main_bar, widget_defaults
 from settings.layouts import init_layouts
 from settings.groups import groups
 from settings.keys import keys, mod
@@ -50,12 +50,14 @@ color_theme = 'rosepine.json'
 with open(os.path.join(qtile_path, 'settings/themes', color_theme), 'r') as file:
     colors = json.load(file)
 
-widgets_assembler = WidgetListAssembler(colors, font)
-
 layouts = init_layouts(colors)
-widget_defaults = widgets_assembler.widget_defaults()
+widget_defaults = widget_defaults(font)
 extension_defaults = widget_defaults.copy()
-screens = [Screen(top=bar.Bar(widgets_assembler.primary_widgets(), 30))]
+
+screens = (
+    Screen(top=bar.Bar(main_bar(colors), 30)),
+    Screen(top=bar.Bar(main_bar(colors)[:-3], 30)), # Remove systray
+)
 
 # Drag floating layouts.
 mouse = [
