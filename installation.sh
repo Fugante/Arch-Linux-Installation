@@ -1,3 +1,5 @@
+#!/bin/bash
+
 VOLUME_GROUP_NAME="vg0"
 ROOT_VOLUME_NAME="root"
 HOME_VOLUME_NAME="home"
@@ -18,24 +20,42 @@ function askDiskName
     read -p "Enter disk: " disk
     if [ -e "/dev/${disk}" ]; then
         echo $disk
+        return 0
     fi
     printToTty "\nInvalid disk\n\n"
     askDiskName
 }
 
-function askPartitionSize
+function askEfiPartitionSize
 {
-    text=$1
-    minSize=$2
-    read size -p $text
+    minSize=$1
+    read -p $EFI_PARTITION_SIZE_TEXT size
     if [ -z $size ]; then
-        echo $minSize
+        echo $EFI_PARTITION_SIZE
+        return 0
     fi
     if [ $size -gt $minSize ]; then
         echo $size
+        return 0
     fi
     printToTty "\nSize must be greater than ${minSize}MiB\n\n"
-    askPartitionSize $text $minSize
+    askEfiPartitionSize $minSize
+}
+
+function askMainPartitionSize
+{
+    minSize=$1
+    read -p $MAIN_PARTITION_SIZE_TEXT size
+    if [ -z $size ]; then
+        echo $MAIN_PARTITION_SIZE
+        return 0
+    fi
+    if [ $size -gt $minSize ]; then
+        echo $size
+        return 0
+    fi
+    printToTty "\nSize must be greater than ${minSize}MiB\n\n"
+    askMainPartitionSize $minSize
 }
 
 function partitionDisk
@@ -112,7 +132,7 @@ function configureSystem
     printToTty "Setting root password\n"
     passwd
     printToTty "Creating user\n"
-    read name -p "Enter username: "
+    read -p "Enter username: " name
     useradd -m -g users -G wheel $name
     passwd $name
     printToTty "Configuring sudo\n"
@@ -132,10 +152,10 @@ function installBootloader
 
 cat ./title.txt
 
-printf "---- CREATING PARTITIONS ----\n"
+printf "     CREATING PARTITIONS     \n"
 disk=$(askDiskName)
-efiPartitionSize=$(askPartitionSize $EFI_PARTITION_SIZE_TEXT $EFI_PARTITION_SIZE)
-mainPartitionSize=$(askPartitionSize $MAIN_PARTITION_SIZE_TEXT $MAIN_PARTITION_SIZE)
+efiPartitionSize=$(askEfiPartitionSize $EFI_PARTITION_SIZE)
+mainPartitionSize=$(askMainPartitionSize $MAIN_PARTITION_SIZE)
 printf "Creating partitions on /dev/${disk}\n"
 partitionDisk $disk $efiPartitionSize $mainPartitionSize
 efiPartition="${disk}1"
@@ -143,11 +163,11 @@ partition="${disk}2"
 printf "Creating EFI and LVM partitions\n"
 createEfiAndLvmPartitions $efiPartition $partition
 
-printf "---- INSTALLING SYSTEM ----\n"
+printf "     INSTALLING SYSTEM     \n"
 installKernel $efiPartition
 configureSystem
 
-printf "---- INSTALLING BOOTLOADER ----\n"
+printf "     INSTALLING BOOTLOADER     \n"
 installBootloader
 
 printf "Rebooting"
