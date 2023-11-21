@@ -6,15 +6,20 @@ MAIN_PARTITION_SIZE="0"
 EFI_PARTITION_SIZE_TEXT="Enter EFI partition size (in MiB) or press Enter for default (500MiB): \n"
 MAIN_PARTITION_SIZE_TEXT="Enter main partition size (in MiB) or press Enter for default (rest of disk): \n"
 
+function printToTty
+{
+    printf $1 > /dev/tty
+}
+
 function askDiskName
 {
-    printf "Available disks:\n"
-    lsblk -dplnx size -o name,size
-    read disk -p "Enter disk: "
+    printToTty "Available disks:\n"
+    lsblk -dplnx size -o name,size > /dev/tty
+    read -p "Enter disk: " disk
     if [ -e "/dev/${disk}" ]; then
-        return $disk
+        echo $disk
     fi
-    printf "Invalid disk\n"
+    printToTty "\nInvalid disk\n\n"
     askDiskName
 }
 
@@ -24,12 +29,12 @@ function askPartitionSize
     minSize=$2
     read size -p $text
     if [ -z $size ]; then
-        return $minSize
+        echo $minSize
     fi
     if [ $size -gt $minSize ]; then
-        return $size
+        echo $size
     fi
-    printf "Size must be greater than ${minSize}MiB\n"
+    printToTty "\nSize must be greater than ${minSize}MiB\n\n"
     askPartitionSize $text $minSize
 }
 
@@ -104,13 +109,13 @@ function configureSystem
     sed -E 's/#(es_MX.UTF-8 UTF-8)/\1/' -i /etc/locale.gen
     locale-gen
     # User configuration
-    printf "Setting root password\n"
+    printToTty "Setting root password\n"
     passwd
-    printf "Creating user\n"
+    printToTty "Creating user\n"
     read name -p "Enter username: "
     useradd -m -g users -G wheel $name
     passwd $name
-    printf "Configuring sudo\n"
+    printToTty "Configuring sudo\n"
     pacman -S --noconfirm sudo
     sed -E 's/#.*(wheel.*)/\1/' -i /etc/sudoers
 }
