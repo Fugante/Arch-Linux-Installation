@@ -5,12 +5,12 @@ ROOT_VOLUME_NAME="root"
 HOME_VOLUME_NAME="home"
 EFI_PARTITION_SIZE="500"
 MAIN_PARTITION_SIZE="0"
-EFI_PARTITION_SIZE_TEXT="Enter EFI partition size (in MiB) or press Enter for default (500MiB): \n"
-MAIN_PARTITION_SIZE_TEXT="Enter main partition size (in MiB) or press Enter for default (rest of disk): \n"
+EFI_PARTITION_SIZE_TEXT="Enter EFI partition size (in MiB) or press Enter for default (500MiB): "
+MAIN_PARTITION_SIZE_TEXT="Enter main partition size (in MiB) or press Enter for default (rest of disk): "
 
 function printToTty
 {
-    printf $1 > /dev/tty
+    printf "${*}" > /dev/tty
 }
 
 function askDiskName
@@ -29,7 +29,7 @@ function askDiskName
 function askEfiPartitionSize
 {
     minSize=$1
-    read -p $EFI_PARTITION_SIZE_TEXT size
+    read -p "${EFI_PARTITION_SIZE_TEXT}" size
     if [ -z $size ]; then
         echo $EFI_PARTITION_SIZE
         return 0
@@ -45,7 +45,7 @@ function askEfiPartitionSize
 function askMainPartitionSize
 {
     minSize=$1
-    read -p $MAIN_PARTITION_SIZE_TEXT size
+    read -p "${MAIN_PARTITION_SIZE_TEXT}" size
     if [ -z $size ]; then
         echo $MAIN_PARTITION_SIZE
         return 0
