@@ -13,6 +13,37 @@ function printToTty
     printf "${*}" > /dev/tty
 }
 
+function Menu
+{
+    printToTty "1. Create partitions\n"
+    printToTty "2. Install system\n"
+    printToTty "3. Configure system\n"
+    printToTty "4. Install bootloader\n"
+    printToTty "5. Exit\n"
+    read -p "Enter option: " option
+    case $option in
+        1)
+            createPartitions
+            ;;
+        2)
+            installSystem
+            ;;
+        3)
+            configureSystem
+            ;;
+        4)
+            installBootloader
+            ;;
+        5)
+            exit
+            ;;
+        *)
+            printToTty "Invalid option\n"
+            Menu
+            ;;
+    esac
+}
+
 function askDiskName
 {
     printToTty "Available disks:\n"
@@ -149,31 +180,52 @@ function installBootloader
     grub-mkconfig -o /boot/grub/grub.cfg
 }
 
+function createPartitions
+{
+    printf "     CREATING PARTITIONS     \n"
+    disk=$(askDiskName)
+    efiPartitionSize=$(askEfiPartitionSize $EFI_PARTITION_SIZE)
+    mainPartitionSize=$(askMainPartitionSize $MAIN_PARTITION_SIZE)
+    printf "Creating partitions on /dev/${disk}\n"
+    partitionDisk $disk $efiPartitionSize $mainPartitionSize
+    efiPartition="${disk}1"
+    partition="${disk}2"
+    printf "Creating EFI and LVM partitions\n"
+    createEfiAndLvmPartitions $efiPartition $partition
+    printf "Partitions created\n"
+    Menu
+}
+
+function installSystem
+{
+    printf "     INSTALLING SYSTEM     \n"
+    installKernel $efiPartition
+    Menu
+}
+
+function configureSystem
+{
+    printf "     CONFIGURING SYSTEM     \n"
+    configureSystem
+    Menu
+}
+
+function installBootloader
+{
+    printf "     INSTALLING BOOTLOADER     \n"
+    installBootloader
+    Menu
+}
+
 
 cat ./title.txt
+Menu
 
-printf "     CREATING PARTITIONS     \n"
-disk=$(askDiskName)
-efiPartitionSize=$(askEfiPartitionSize $EFI_PARTITION_SIZE)
-mainPartitionSize=$(askMainPartitionSize $MAIN_PARTITION_SIZE)
-printf "Creating partitions on /dev/${disk}\n"
-partitionDisk $disk $efiPartitionSize $mainPartitionSize
-efiPartition="${disk}1"
-partition="${disk}2"
-printf "Creating EFI and LVM partitions\n"
-createEfiAndLvmPartitions $efiPartition $partition
 
-printf "     INSTALLING SYSTEM     \n"
-installKernel $efiPartition
-configureSystem
-
-printf "     INSTALLING BOOTLOADER     \n"
-installBootloader
-
-printf "Rebooting"
-exit
-umount -R /mnt
-reboot
+# printf "Rebooting"
+# exit
+# umount -R /mnt
+# reboot
 
 
 # printf "Installing network tools\n"
